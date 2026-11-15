@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevDaemon — Autonomous Terminal Error Interceptor & Self-Healing Daemon</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #111827;
+      --accent: #f59e0b;
+      --accent-dim: rgba(245, 158, 11, 0.15);
+      --border: #1f2937;
+      --text: #f9fafb;
+      --text-muted: #9ca3af;
+      --term-bg: #030712;
+      --term-green: #10b981;
+      --term-red: #ef4444;
+      --term-cyan: #38bdf8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.5;
+      padding: 24px;
+    }
+    .header {
+      max-width: 1200px;
+      margin: 0 auto 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 20px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .badge {
+      background: var(--accent-dim);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .logo h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+    .subtitle { color: var(--text-muted); font-size: 13px; margin-top: 4px; }
+    .nav-links a {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 13px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      margin-left: 8px;
+      transition: all 0.2s;
+    }
+    .nav-links a:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .main-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 24px;
+    }
+    @media (max-width: 900px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+    .term-window {
+      background: var(--term-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px -15px rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      height: 580px;
+    }
+    .term-header {
+      background: #111827;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .term-btn { width: 12px; height: 12px; border-radius: 50%; }
+    .term-title {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-left: 12px;
+      font-family: monospace;
+    }
+    .term-body {
+      flex: 1;
+      padding: 18px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #e2e8f0;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+    .card h2 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sim-btn {
+      width: 100%;
+      text-align: left;
+      background: #0d1322;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+    .sim-btn:hover {
+      border-color: var(--accent);
+      background: rgba(245, 158, 11, 0.08);
+    }
+    .sim-title { font-weight: 700; color: #fff; margin-bottom: 2px; }
+    .sim-desc { font-size: 11px; color: var(--text-muted); }
+    .heal-btn {
+      background: var(--accent);
+      color: #030712;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      margin-top: 8px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="logo">
+      <span class="badge">v1.0.0</span>
+      <div>
+        <h1>🛡️ DevDaemon</h1>
+        <div class="subtitle">The Autonomous Terminal Error Interceptor & Workspace Self-Healing Daemon</div>
+      </div>
+    </div>
+    <div class="nav-links">
+      <a href="https://github.com/1nsharma-labs/devdaemon" target="_blank">⭐ GitHub Repo</a>
+      <a href="https://polar.sh/1nsharma-labs" target="_blank">💳 Polar Sponsor</a>
+      <a href="mailto:amitsharma9976@gmail.com">✉️ Contact Enterprise</a>
+    </div>
+  </header>
+
+  <div class="main-grid">
+    <!-- Interactive Terminal -->
+    <div class="term-window">
+      <div class="term-header">
+        <div class="term-btn" style="background:#ef4444;"></div>
+        <div class="term-btn" style="background:#f59e0b;"></div>
+        <div class="term-btn" style="background:#10b981;"></div>
+        <span class="term-title">bash — DevDaemon Interceptor Active (PID: 8841)</span>
+      </div>
+      <div class="term-body" id="termOutput">$ devdaemon watch --active
+🛡️ DevDaemon listening to shell sessions.
+Sub-5ms deterministic pattern classifier ready.
+
+Select an error scenario from the right panel to test live interception...</div>
+    </div>
+
+    <!-- Scenarios & MCP -->
+    <div style="display:flex; flex-direction:column; gap:20px;">
+      <div class="card">
+        <h2>⚡ Live Error Scenarios</h2>
+        
+        <button class="sim-btn" onclick="simulatePortConflict()">
+          <div class="sim-title">1. Port 3000 In Use (EADDRINUSE)</div>
+          <div class="sim-desc">Next.js or Express dev server fails because zombie node process holds 3000.</div>
+        </button>
+
+        <button class="sim-btn" onclick="simulateMissingModule()">
+          <div class="sim-title">2. Missing Node.js Package</div>
+          <div class="sim-desc">Cannot find module 'dotenv' or 'cors' in node_modules.</div>
+        </button>
+
+        <button class="sim-btn" onclick="simulatePythonModule()">
+          <div class="sim-title">3. Missing Python Dependency</div>
+          <div class="sim-desc">ModuleNotFoundError: No module named 'fastapi'.</div>
+        </button>
+
+        <button class="sim-btn" onclick="simulateGitRejected()">
+          <div class="sim-title">4. Git Push Rejected</div>
+          <div class="sim-desc">Remote branch has newer commits; non-fast-forward push.</div>
+        </button>
+      </div>
+
+      <div class="card">
+        <h2>🔮 Claude Desktop & Cursor MCP</h2>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
+          Autonomous terminal healing directly for Cursor & Claude:
+        </p>
+        <pre style="background:#030712; padding:10px; border-radius:6px; font-size:11px; color:#f59e0b; overflow-x:auto;">{
+  "mcpServers": {
+    "devdaemon": {
+      "command": "npx",
+      "args": ["-y", "devdaemon", "mcp"]
+    }
+  }
+}</pre>
+        <div style="margin-top: 12px; font-size: 11px; color: var(--text-muted);">
+          Founder: <b>Amit Sharma</b> (@1nsharma) • UPI: <code>6393741171@upi</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const term = document.getElementById('termOutput');
+
+    function log(msg) {
+      term.textContent += '\n' + msg;
+      term.scrollTop = term.scrollHeight;
+    }
+
+    function simulatePortConflict() {
+      log('\n$ npm run dev');
+      log('> server@1.0.0 dev');
+      log('> node server.js\n');
+      log('\x1b[31mError: listen EADDRINUSE: address already in use :::3000\x1b[0m');
+      log('    at Server.setupListenHandle [as _listen2] (node:net:1872:16)');
+      log('    at listenInCluster (node:net:1920:12)\n');
+      log('--------------------------------------------------');
+      log('🛡️ [DevDaemon Intercepted Failure in 1.4ms]');
+      log('  Category:   PORT_IN_USE (Confidence: 98%)');
+      log('  Root Cause: Port 3000 is occupied by zombie PID: 4912 (node.exe)');
+      log('  Suggested Fix:');
+      log('  👉 Run: devdaemon kill-port 3000\n');
+      log('Press below to heal:');
+      log('⚡ [HEAL EXECUTED]: taskkill /F /PID 4912 -> Process 4912 terminated.');
+      log('✅ Port 3000 is now free. Re-running `npm run dev`... Ready on http://localhost:3000');
+    }
+
+    function simulateMissingModule() {
+      log('\n$ node app.js');
+      log('\x1b[31mError [ERR_MODULE_NOT_FOUND]: Cannot find module \'dotenv\'\x1b[0m');
+      log('    at finalizeResolution (node:internal/modules/esm/resolve:271:11)\n');
+      log('--------------------------------------------------');
+      log('🛡️ [DevDaemon Intercepted Failure in 0.8ms]');
+      log('  Category:   MISSING_DEPENDENCY_NODE (Confidence: 95%)');
+      log('  Root Cause: Package "dotenv" is missing in node_modules.');
+      log('  Suggested Fix:');
+      log('  👉 Run: npm install dotenv\n');
+      log('✅ Ready to execute.');
+    }
+
+    function simulatePythonModule() {
+      log('\n$ python main.py');
+      log('\x1b[31mModuleNotFoundError: No module named \'fastapi\'\x1b[0m');
+      log('  File "main.py", line 1, in <module>\n');
+      log('--------------------------------------------------');
+      log('🛡️ [DevDaemon Intercepted Failure in 1.1ms]');
+      log('  Category:   MISSING_DEPENDENCY_PYTHON (Confidence: 95%)');
+      log('  Root Cause: "fastapi" is not installed in the active virtualenv.');
+      log('  Suggested Fix:');
+      log('  👉 Run: pip install fastapi\n');
+      log('✅ Ready to execute.');
+    }
+
+    function simulateGitRejected() {
+      log('\n$ git push origin main');
+      log('\x1b[31mTo github.com:1nsharma-labs/repo.git\x1b[0m');
+      log('\x1b[31m ! [rejected]        main -> main (fetch first)\x1b[0m');
+      log('error: failed to push some refs to \'github.com:1nsharma-labs/repo.git\'\n');
+      log('--------------------------------------------------');
+      log('🛡️ [DevDaemon Intercepted Failure in 1.2ms]');
+      log('  Category:   GIT_PUSH_REJECTED (Confidence: 96%)');
+      log('  Root Cause: Remote has commits you do not have locally.');
+      log('  Suggested Fix:');
+      log('  👉 Run: git pull --rebase origin main && git push origin main\n');
+      log('✅ Ready to execute.');
+    }
+  </script>
+</body>
+</html>
