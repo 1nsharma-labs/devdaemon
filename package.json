@@ -1,0 +1,47 @@
+{
+  "name": "devdaemon",
+  "version": "1.0.0",
+  "description": "The Open-Source Autonomous Terminal Error Interceptor & Workspace Self-Healing Daemon",
+  "main": "core/src/index.js",
+  "type": "module",
+  "bin": {
+    "devdaemon": "./core/src/cli/index.js"
+  },
+  "scripts": {
+    "start": "node core/src/cli/index.js",
+    "test": "node test/test_devdaemon.js",
+    "mcp": "node core/src/cli/index.js mcp"
+  },
+  "keywords": [
+    "terminal-healing",
+    "developer-tools",
+    "cli",
+    "ai-agent",
+    "mcp",
+    "cursor",
+    "claude-desktop",
+    "devops",
+    "port-killer",
+    "self-healing",
+    "open-source"
+  ],
+  "author": "Amit Sharma <amitsharma9976@gmail.com> (https://github.com/1nsharma)",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/1nsharma-labs/devdaemon.git"
+  },
+  "funding": [
+    {
+      "type": "individual",
+      "url": "https://polar.sh/1nsharma-labs"
+    },
+    {
+      "type": "upi",
+      "url": "upi://pay?pa=6393741171@upi&pn=Amit%20Sharma"
+    }
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
